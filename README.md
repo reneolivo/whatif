@@ -2,32 +2,41 @@
 A promise based programming pattern
 -------
 
-The goal of whatif is to write readable, self explanatory code by leveraging promises.
+The goal of **whatIf** is to write readable, self explanatory code by leveraging
+the power of promises.
 
+**whatIf** can accept a function, a boolean, or a promise as a parameter. It
+returns a Promise like object. Aside from `.then(success, failure, progress)`,
+the whatIf object also supports `.otherwise(failure)`, and
+`.butWhatIf(whatIfCondition)`.
 
-### examples 
+### examples
 
-
+**Functions as parameters:**
 ```
-whatif(theUserLogsIn)
-.then(theUserIsRedirectedToTheDashboard)
-.otherwise(theUserSeesAnErrorMessage);
+whatIf(theUserLogins)
+.then(redirectTheUserToTheDashboard)
+.otherwise(displayAnErrorMessage);
+```
 
-function theUserLogsIn {
-  let hash = hashMyPassword(req.body.password);
+**Executed functions:**
+```
+whatIf(theUserIs('admin'))
+.then(displayAdminMenu);
+```
 
-  return db.user.findOne({
-    username: req.body.username,
-    password: hash
-  });
-}
+**Logical operators:**
+```
+whatif(theThemeColor === 'red')
+.then(displayTheRedDashboard)
+.butWhatIf(theThemeColor === 'blue')
+.then(displayTheBlueDashboard)
+.otherwise(displayTheGreenDashboard);
+```
 
-function theUserIsRedirectedToTheDashboard(user) {
-  req.session.user = user;
-  res.redirect('/dashboard');
-}
-
-function theUserSeesAnErrorMessage() {
-  res.send(500, 'could not login');
-}
+**Promises:**
+```
+whatIf(weFetchTheDashboardData())
+.then(displayTheDashboardData)
+.otherwise(displayAnErrorMessage);
 ```
