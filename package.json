@@ -1,0 +1,29 @@
+{
+  "name": "whatif",
+  "version": "0.1.1",
+  "description": "A promise based programming pattern",
+  "main": "dist/whatif.js",
+  "scripts": {
+    "test": "jasmine"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reneolivo/whatif.git"
+  },
+  "keywords": [
+    "whatif",
+    "programming",
+    "patterns",
+    "promises"
+  ],
+  "author": "René Olivo <rene.olivo.do@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/reneolivo/whatif/issues"
+  },
+  "homepage": "https://github.com/reneolivo/whatif#readme",
+  "devDependencies": {
+    "jasmine": "^2.5.2",
+    "jasmine-spec-reporter": "^2.7.0"
+  }
+}
