@@ -1,25 +1,46 @@
 'use strict';
 
-module.exports = class WhatIfPromise extends Promise {
-  otherwise(failure) {
-    return this.then(null, failure);
-  }
+module.exports = class WhatIfPromise {
+  constructor(statement) {
+    this.isPristine = true;
+    this.isResolved = false;
 
-  butWhatIf(whatIfCondition) {
-    return WhatIfPromise.whatIf(whatIfCondition);
-  }
-
-  static whatIf(whatIfCondition) {
-    if (typeof whatIfCondition === 'function') {
-      return new WhatIfPromise((resolve, reject) => {
-        const result = whatIfCondition();
-
-        result ? resolve(result) : reject(result);
-      });
+    if (typeof statement === 'function') {
+      this.promise = this._createPromiseFromFunction(statement);
     } else {
-      return whatIfCondition ?
-      WhatIfPromise.resolve(whatIfCondition) :
-      WhatIfPromise.reject(whatIfCondition);
+      this.isPristine = !!statement;
+      this.promise = Promise.resolve(statement);
     }
+  }
+
+  then(action) {
+    if (this.isPristine && !this.isResolved) {
+      this.promise = this.promise.then(action);
+    }
+
+    return this;
+  }
+
+  butWhatIf(statement) {
+    if (this.isPristine) {
+      this.isResolved = true;
+      return this;
+    }
+
+    return new WhatIfPromise(statement);
+  }
+
+  otherwise(action) {
+    if (!this.isPristine) action();
+
+    return this;
+  }
+
+  _createPromiseFromFunction(action) {
+    return new Promise((resolve, reject) => {
+      const result = action();
+
+      resolve(result);
+    });
   }
 }

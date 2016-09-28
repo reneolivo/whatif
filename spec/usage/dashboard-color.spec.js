@@ -3,9 +3,15 @@
 const whatIf = require('../../src/whatif');
 
 describe('Use Case: Dashboard Color', () => {
-  let displayTheRedDashboard = jasmine.createSpy('redSpy');
-  let displayTheBlueDashboard = jasmine.createSpy('blueSpy');
-  let displayTheGreenDashboard = jasmine.createSpy('greenSpy');
+  let displayTheRedDashboard;
+  let displayTheBlueDashboard;
+  let displayTheGreenDashboard;
+
+  beforeEach(() => {
+    displayTheRedDashboard = jasmine.createSpy('redSpy');
+    displayTheBlueDashboard = jasmine.createSpy('blueSpy');
+    displayTheGreenDashboard = jasmine.createSpy('greenSpy');
+  });
 
   function runSpec(theThemeColor) {
     whatIf(theThemeColor === 'red')

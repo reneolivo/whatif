@@ -1,110 +1,168 @@
 'use strict';
 
-let WhatIfPromise = require('../src/promise');
+const WhatIfPromise = require('../src/promise');
 
 describe('WhatIfPromise', () => {
+  const value = { result: 123 };
   let whatIf;
-  let promise;
+  let callMe;
 
   beforeEach(() => {
-    whatIf = new WhatIfPromise(() => {});
-    promise = WhatIfPromise.resolve('ok');
+    whatIf = new WhatIfPromise(value);
+    callMe = jasmine.createSpy('callMe');
   });
 
-  it('should be an extension of Promise', () => {
-    expect(whatIf instanceof Promise).toBe(true);
+  it('should define a .then method', () => {
+    expect(typeof whatIf.then).toBeDefined();
   });
 
-  describe('.otherwise', () => {
-    beforeEach(() => spyOn(whatIf, 'then').and.returnValue(promise));
+  describe('statement parameter', () => {
+    function expectPromiseToResolveToValue(next) {
+      whatIf.then(result => {
+        expect(result).toBe(value);
+        next();
+      });
+    }
 
-    it('should define a .otherwise method', () => {
-      expect(typeof whatIf.otherwise).toBe('function');
+    it('should accept and execute a function', (next) => {
+      const myAction = jasmine.createSpy('myAction').and.returnValue(value);
+      whatIf = new WhatIfPromise(myAction);
+
+      expectPromiseToResolveToValue(next);
     });
 
-    it('should call .then(null, condition)', () => {
-      whatIf.otherwise(123);
-      expect(whatIf.then).toHaveBeenCalledWith(null, 123);
+    it('should accept and resolve a promise', (next) => {
+      const myPromise = Promise.resolve(value);
+
+      whatIf = new WhatIfPromise(myPromise);
+      expectPromiseToResolveToValue(next);
     });
 
-    it('should return a promise', () => {
-      const result = whatIf.otherwise(123);
-      expect(result).toBe(promise);
+    it('should accept an arbitrary value', (next) => {
+      expectPromiseToResolveToValue(next);
+    });
+  });
+
+  describe('.then behaviour', () => {
+    it('should return itself, not the promise', () => {
+      const result = whatIf.then(null);
+      expect(result).toBe(whatIf);
+    });
+
+    it('should return the last chain of the promise', (next) => {
+        whatIf.then((result) => {
+          expect(result).toBe(value);
+          return 'ABC';
+        }).then((result) => {
+          expect(result).toBe('ABC');
+          next();
+        });
     });
   });
 
   describe('.butWhatIf', () => {
-    beforeEach(() => spyOn(WhatIfPromise, 'whatIf').and.returnValue(promise));
-
     it('should define a .butWhatIf method', () => {
       expect(typeof whatIf.butWhatIf).toBe('function');
     });
 
-    it('should call WhatIfPromise.whatIf()', () => {
-      whatIf.butWhatIf(123);
-      expect(WhatIfPromise.whatIf).toHaveBeenCalledWith(123);
+    it(`should not execute .then if the original statement is falsy`, (done) => {
+      whatIf = new WhatIfPromise(false);
+
+      whatIf.then(done.fail);
+
+      setTimeout(() => {
+        done();
+      }, 0);
     });
 
-    it('should return a promise', () => {
-      const result = whatIf.butWhatIf(123);
-      expect(result).toBe(promise);
+    it('should execute .butWhatIf if the original statement is falsy', (done) => {
+      whatIf = new WhatIfPromise(false);
+
+      whatIf.then(done.fail)
+      .butWhatIf(done);
     });
+
+    it('should not execute .butWhatIf if the original statement is truthy', (done) => {
+      whatIf = new WhatIfPromise(true);
+
+      whatIf.then(done)
+      .butWhatIf(done.fail);
+    });
+
+    it('should execute the .then of the .butWhatIf when the .butWhatIf is truthy', (done) => {
+      whatIf = new WhatIfPromise(false);
+
+      whatIf.then(done.fail)
+      .butWhatIf(true)
+      .then(done);
+    });
+
+    it('should only execute the appropiate .butWhatIf even if there are many', (done) => {
+      const dontCallMe1 = jasmine.createSpy('dontCallMe1');
+      const dontCallMe2 = jasmine.createSpy('dontCallMe2');
+      const dontCallMe4 = jasmine.createSpy('dontCallMe4');
+      const dontCallMe5 = jasmine.createSpy('dontCallMe5');
+      const dontCallMe6 = jasmine.createSpy('dontCallMe6');
+
+      whatIf = new WhatIfPromise(false);
+
+      whatIf.then(dontCallMe1)
+
+      .butWhatIf(false)
+      .then(dontCallMe2)
+
+      .butWhatIf(true)
+      .then(callMe)
+
+      .butWhatIf(false)
+      .then(dontCallMe4)
+
+      .butWhatIf(true)
+      .then(dontCallMe5)
+
+      .butWhatIf(false)
+      .then(dontCallMe5);
+
+      setTimeout(() => {
+        expect(callMe).toHaveBeenCalled();
+        expect(dontCallMe1).not.toHaveBeenCalled();
+        expect(dontCallMe2).not.toHaveBeenCalled();
+        expect(dontCallMe4).not.toHaveBeenCalled();
+        expect(dontCallMe5).not.toHaveBeenCalled();
+        expect(dontCallMe6).not.toHaveBeenCalled();
+        done();
+      }, 0);
+    });
+
   });
 
-  describe('.whatIf', () => {
-    it('should define a static whatIf method', () => {
-      expect(typeof WhatIfPromise.whatIf).toBe('function');
+  describe('.otherwise', () => {
+    it('should define a .otherwise method', () => {
+      expect(typeof whatIf.otherwise).toBe('function');
     });
 
-    describe('passing a function', () => {
-      let myAction;
-      let result;
+    it('should be called when the other statements are falsy', (done) => {
+      whatIf = new WhatIfPromise(false);
 
-      beforeEach(() => {
-        myAction = jasmine.createSpy('myAction');
-        result = WhatIfPromise.whatIf(myAction);
-      });
+      whatIf.then(done.fail)
+      .otherwise(callMe);
 
-      it('should execute myAction', () => {
-        expect(myAction).toHaveBeenCalled();
-      });
-
-      it('should return a promise', () => {
-        expect(result instanceof Promise);
-      });
+      setTimeout(() => {
+        expect(callMe).toHaveBeenCalled();
+        done();
+      }, 0);
     });
 
-    describe('passing a value', () => {
-      beforeEach(() => {
-        spyOn(WhatIfPromise, 'resolve').and.returnValue(promise);
-        spyOn(WhatIfPromise, 'reject').and.returnValue(promise);
-      });
+    it('should not be called if there is a truthy statement', (done) => {
+      whatIf.then(callMe)
+      .butWhatIf(false)
+      .then(done.fail)
+      .otherwise(done.fail);
 
-      describe('truthty value', () => {
-        it('should be resolved', () => {
-          WhatIfPromise.whatIf(123);
-          expect(WhatIfPromise.resolve).toHaveBeenCalledWith(123);
-          expect(WhatIfPromise.reject).not.toHaveBeenCalled();
-        });
-
-        it('should return a promise', () => {
-          const result = WhatIfPromise.whatIf(123);
-          expect(result).toBe(promise);
-        });
-      });
-
-      describe('falsy value', () => {
-        it('should be rejected', () => {
-          WhatIfPromise.whatIf(false);
-          expect(WhatIfPromise.resolve).not.toHaveBeenCalled();
-          expect(WhatIfPromise.reject).toHaveBeenCalledWith(false);
-        });
-
-        it('should return a promise', () => {
-          const result = WhatIfPromise.whatIf(false);
-          expect(result).toBe(promise);
-        });
-      });
+      setTimeout(() => {
+        expect(callMe).toHaveBeenCalled();
+        done();
+      }, 0);
     });
   });
 });

@@ -1,7 +1,7 @@
 'use strict';
 
-let WhatIfPromise = require('./promise');
+const WhatIfPromise = require('./promise');
 
-module.exports = function whatIf(whatIfCondition) {
-  return WhatIfPromise.whatIf(whatIfCondition);
+module.exports = function whatIf(statement) {
+  return new WhatIfPromise(statement);
 }
