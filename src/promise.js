@@ -76,7 +76,7 @@ module.exports = class WhatIfPromise {
 
   _reduceFunctionToPromisedValue(action) {
     return new Promise((resolve, reject) => {
-      const result = action();
+      let result = action();
       result = this._reduceToPromisedValue(result);
 
       resolve(result);

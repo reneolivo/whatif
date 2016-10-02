@@ -54,7 +54,7 @@ describe('Usage: User Login', () => {
 
       whatIf(theUserLogins)
       .then(redirectTheUserToTheDashboard)
-      .catch(displayAnErrorMessage);
+      .otherwise(displayAnErrorMessage);
     });
 
     it('should not call redirectTheUserToTheDashboard', (next) => {
@@ -66,8 +66,7 @@ describe('Usage: User Login', () => {
 
     it('should call displayAnErrorMessage', (next) => {
       setTimeout(() => {
-        expect(displayAnErrorMessage)
-        .toHaveBeenCalledWith(new Error(failureMessage));
+        expect(displayAnErrorMessage).toHaveBeenCalled();
         next();
       }, 0);
     });
@@ -82,7 +81,7 @@ describe('Usage: User Login', () => {
 
       whatIf(theUserLogins)
       .then(redirectTheUserToTheDashboard)
-      .catch(displayAnErrorMessage);
+      .otherwise(displayAnErrorMessage);
     });
 
     it('should call redirectTheUserToTheDashboard', (next) => {
@@ -92,10 +91,9 @@ describe('Usage: User Login', () => {
       }, 0);
     });
 
-    it('should call displayAnErrorMessage', (next) => {
+    it('should not call displayAnErrorMessage', (next) => {
       setTimeout(() => {
-        expect(displayAnErrorMessage)
-        .toHaveBeenCalledWith(new Error(failureMessage));
+        expect(displayAnErrorMessage).not.toHaveBeenCalled();
         next();
       }, 0);
     });
