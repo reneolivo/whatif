@@ -17,6 +17,10 @@ module.exports = class WhatIfPromise {
     return this;
   }
 
+  and(action) {
+    return this.then(action);
+  }
+
   catch(action) {
     this.isPristinePromise.then(() => {
       this.promise = this.promise.catch(action);

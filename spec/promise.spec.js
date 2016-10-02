@@ -16,6 +16,10 @@ describe('WhatIfPromise', () => {
     expect(typeof whatIf.then).toBeDefined();
   });
 
+  it('should define a .and method', () => {
+    expect(typeof whatIf.and).toBeDefined();
+  });
+
   describe('To Promise', () => {
     it('should define a .toPromise method', () => {
       expect(typeof whatIf.toPromise).toBe('function');
@@ -54,19 +58,30 @@ describe('WhatIfPromise', () => {
   });
 
   describe('.then behaviour', () => {
+    function returnABC(result) {
+      expect(result).toBe(value);
+      return 'ABC';
+    }
+
+    function expectABC(result) {
+      expect(result).toBe('ABC');
+    }
+
     it('should return itself, not the promise', () => {
       const result = whatIf.then(null);
       expect(result).toBe(whatIf);
     });
 
     it('should return the last chain of the promise', (done) => {
-      return whatIf.then((result) => {
-        expect(result).toBe(value);
-        return 'ABC';
-      }).then((result) => {
-        expect(result).toBe('ABC');
-        done();
-      });
+      whatIf.then(returnABC)
+      .then(expectABC)
+      .then(() => done());
+    });
+
+    it('can use .and instead of .then', (done) => {
+      whatIf.then(returnABC)
+      .and(expectABC)
+      .and(() => done());
     });
   });
 
