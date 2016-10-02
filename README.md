@@ -70,3 +70,19 @@ whatIf(userIsAdmin)
 .then(displayAdminMenu)
 .and(displayAdminReport);
 ```
+
+**Can catch errors that happen inside `.then` and .`.and` statements:**
+```
+whatIf(theUserHasLoggedIn)
+.then(tryToRedirectThemToTheirDashboard)
+.catch(tryToHandleTheRedirectionError);
+```
+
+**But will treat errors thrown inside `whatIf` and `.butWhatIf` statements as
+falsy values:**
+```
+whatIf(thisThrowsAnError)
+.then(thisWillNotExecute)
+.catch(thisWillNotExecuteEither)
+.otherwise(thisWillExecute);
+```
