@@ -16,30 +16,40 @@ describe('WhatIfPromise', () => {
     expect(typeof whatIf.then).toBeDefined();
   });
 
+  describe('To Promise', () => {
+    it('should define a .toPromise method', () => {
+      expect(typeof whatIf.toPromise).toBe('function');
+    });
+
+    it('should return a promise', () => {
+      const result = whatIf.toPromise();
+
+      expect(result instanceof Promise).toBe(true);
+    });
+  });
+
   describe('statement parameter', () => {
-    function expectPromiseToResolveToValue(next) {
+    function expectPromiseToResolveToValue(done) {
       whatIf.then(result => {
         expect(result).toBe(value);
-        next();
+        done();
       });
     }
 
-    it('should accept and execute a function', (next) => {
-      const myAction = jasmine.createSpy('myAction').and.returnValue(value);
-      whatIf = new WhatIfPromise(myAction);
-
-      expectPromiseToResolveToValue(next);
+    it('should accept and execute a function', (done) => {
+      whatIf = new WhatIfPromise(done);
     });
 
-    it('should accept and resolve a promise', (next) => {
+    it('should accept and resolve a promise', (done) => {
       const myPromise = Promise.resolve(value);
 
       whatIf = new WhatIfPromise(myPromise);
-      expectPromiseToResolveToValue(next);
+
+      expectPromiseToResolveToValue(done);
     });
 
-    it('should accept an arbitrary value', (next) => {
-      expectPromiseToResolveToValue(next);
+    it('should accept an arbitrary value', (done) => {
+      expectPromiseToResolveToValue(done);
     });
   });
 
@@ -49,14 +59,14 @@ describe('WhatIfPromise', () => {
       expect(result).toBe(whatIf);
     });
 
-    it('should return the last chain of the promise', (next) => {
-        whatIf.then((result) => {
-          expect(result).toBe(value);
-          return 'ABC';
-        }).then((result) => {
-          expect(result).toBe('ABC');
-          next();
-        });
+    it('should return the last chain of the promise', (done) => {
+      return whatIf.then((result) => {
+        expect(result).toBe(value);
+        return 'ABC';
+      }).then((result) => {
+        expect(result).toBe('ABC');
+        done();
+      });
     });
   });
 
@@ -70,9 +80,7 @@ describe('WhatIfPromise', () => {
 
       whatIf.then(done.fail);
 
-      setTimeout(() => {
-        done();
-      }, 0);
+      setTimeout(() => done(), 0);
     });
 
     it('should execute .butWhatIf if the original statement is falsy', (done) => {
@@ -154,9 +162,80 @@ describe('WhatIfPromise', () => {
     });
 
     it('should not be called if there is a truthy statement', (done) => {
+      whatIf = new WhatIfPromise(true);
+
       whatIf.then(callMe)
       .butWhatIf(false)
       .then(done.fail)
+      .otherwise(done.fail);
+
+      setTimeout(() => {
+        expect(callMe).toHaveBeenCalled();
+        done();
+      }, 0);
+    });
+  });
+
+  describe('handling errors', () => {
+    const errorMessage = 'Some Error';
+    let callError;
+
+    beforeEach(() => {
+      callError = jasmine.createSpy('callError').and.throwError(errorMessage);
+    });
+
+    it('should define a .catch method', () => {
+      expect(typeof whatIf.catch).toBe('function');
+    });
+
+    it('should count errors as falsy values on whatIf statements', (done) => {
+      whatIf = new WhatIfPromise(callError);
+
+      whatIf.then(done.fail)
+      .catch(done.fail)
+      .butWhatIf(callError)
+      .then(done.fail)
+      .catch(done.fail)
+      .butWhatIf(true)
+      .then(callMe);
+
+      setTimeout(() => {
+        expect(callMe).toHaveBeenCalled();
+        done();
+      }, 0);
+    });
+
+    it('should treat erros as falsy values and not execute any catches', (done) => {
+      whatIf = new WhatIfPromise(callError);
+      whatIf.then(done.fail)
+      .catch(done.fail);
+
+      setTimeout(() => {
+        done();
+      }, 0);
+    });
+
+    it('should not execute catch if no error were thrown', (done) => {
+      whatIf.then(callMe)
+      .catch(done.fail);
+
+      setTimeout(() => {
+        expect(callMe).toHaveBeenCalled();
+        done();
+      }, 0);
+    });
+
+    it('should only catch errors for the valid WhatIf block', (done) => {
+      whatIf = new WhatIfPromise(false);
+
+      whatIf.then(done.fail)
+      .catch(done.fail)
+      .butWhatIf(true)
+      .then(callError)
+      .catch(callMe)
+      .butWhatIf(false)
+      .then(done.fail)
+      .catch(done.fail)
       .otherwise(done.fail);
 
       setTimeout(() => {

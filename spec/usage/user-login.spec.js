@@ -2,7 +2,7 @@
 
 const whatIf = require('../../src/whatif');
 
-xdescribe('Usage: User Login', () => {
+describe('Usage: User Login', () => {
   let user;
   let theUserLogins;
   let redirectTheUserToTheDashboard;
@@ -54,7 +54,7 @@ xdescribe('Usage: User Login', () => {
 
       whatIf(theUserLogins)
       .then(redirectTheUserToTheDashboard)
-      .otherwise(displayAnErrorMessage);
+      .catch(displayAnErrorMessage);
     });
 
     it('should not call redirectTheUserToTheDashboard', (next) => {
@@ -82,7 +82,7 @@ xdescribe('Usage: User Login', () => {
 
       whatIf(theUserLogins)
       .then(redirectTheUserToTheDashboard)
-      .otherwise(displayAnErrorMessage);
+      .catch(displayAnErrorMessage);
     });
 
     it('should call redirectTheUserToTheDashboard', (next) => {
