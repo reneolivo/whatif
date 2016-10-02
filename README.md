@@ -10,6 +10,7 @@ If the result is true it will execute the `.then`'s associated to the statement,
 if not it will continue to the `.butWhatIf` statements until it finds a matching,
 if not it will run the `.otherwise` statement.
 
+-------
 ### examples
 
 **The basics:**
@@ -35,6 +36,7 @@ whatIf(weFetchTheDashboardData())
 .otherwise(displayAnErrorMessage);
 ```
 
+----
 ### Specifications:
 <small><strong>Warning:</strong> these may change in the near future. Not ready for production.</small>
 
