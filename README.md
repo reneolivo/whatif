@@ -13,20 +13,20 @@ the whatIf object also supports `.otherwise(failure)`, and
 ### examples
 
 **Functions as parameters:**
-```
+```js
 whatIf(theUserLogins)
 .then(redirectTheUserToTheDashboard)
 .otherwise(displayAnErrorMessage);
 ```
 
 **Executed functions:**
-```
+```js
 whatIf(theUserIs('admin'))
 .then(displayAdminMenu);
 ```
 
 **Logical operators:**
-```
+```js
 whatif(theThemeColor === 'red')
 .then(displayTheRedDashboard)
 .butWhatIf(theThemeColor === 'blue')
@@ -35,7 +35,7 @@ whatif(theThemeColor === 'red')
 ```
 
 **Promises:**
-```
+```js
 whatIf(weFetchTheDashboardData())
 .then(displayTheDashboardData)
 .otherwise(displayAnErrorMessage);
