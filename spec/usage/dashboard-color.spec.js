@@ -21,30 +21,37 @@ describe('Use Case: Dashboard Color', () => {
     .otherwise(displayTheGreenDashboard);
   }
 
-  it('should only run displayTheRedDashboard when the color is red', (next) => {
+  it('should only run displayTheRedDashboard when the color is red', (done) => {
     runSpec('red');
 
-    setTimeout(() => {
+    setTimeout(() =>  {
       expect(displayTheRedDashboard).toHaveBeenCalledWith(true);
       expect(displayTheBlueDashboard).not.toHaveBeenCalled();
       expect(displayTheGreenDashboard).not.toHaveBeenCalled();
-      next();
+      done();
+    }, 0);
+
+  });
+
+  it('should only run displayTheBlueDashboard when the color is blue', (done) => {
+    runSpec('blue');
+
+    setTimeout(() =>  {
+      expect(displayTheRedDashboard).not.toHaveBeenCalled();
+      expect(displayTheBlueDashboard).toHaveBeenCalledWith(true);
+      expect(displayTheGreenDashboard).not.toHaveBeenCalled();
+      done();
     }, 0);
   });
 
-  it('should only run displayTheBlueDashboard when the color is blue', () => {
-    runSpec('blue');
-
-    expect(displayTheRedDashboard).not.toHaveBeenCalled();
-    expect(displayTheBlueDashboard).not.toHaveBeenCalledWith(true);
-    expect(displayTheGreenDashboard).not.toHaveBeenCalled();
-  });
-
-  it('should only run displayTheGreenDashboard when passing any other color', () => {
+  it('should only run displayTheGreenDashboard when passing any other color', (done) => {
     runSpec('gold');
 
-    expect(displayTheRedDashboard).not.toHaveBeenCalled();
-    expect(displayTheBlueDashboard).not.toHaveBeenCalled();
-    expect(displayTheGreenDashboard).toHaveBeenCalled();
+    setTimeout(() =>  {
+      expect(displayTheRedDashboard).not.toHaveBeenCalled();
+      expect(displayTheBlueDashboard).not.toHaveBeenCalled();
+      expect(displayTheGreenDashboard).toHaveBeenCalled();
+      done();
+    }, 0);
   });
 });
