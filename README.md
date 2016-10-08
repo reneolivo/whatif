@@ -14,14 +14,14 @@ if not it will run the `.otherwise` statement.
 ### examples
 
 **The basics:**
-```
+```js
 whatIf(theUserLogins)
 .then(redirectTheUserToTheDashboard)
 .otherwise(displayAnErrorMessage);
 ```
 
 **You can pass logical operators:**
-```
+```js
 whatIf(theThemeColor === 'red')
 .then(displayTheRedDashboard)
 .butWhatIf(theThemeColor === 'blue')
@@ -30,7 +30,7 @@ whatIf(theThemeColor === 'red')
 ```
 
 **Or even promises:**
-```
+```js
 whatIf(weFetchTheDashboardData())
 .then(displayTheDashboardData)
 .otherwise(displayAnErrorMessage);
@@ -50,7 +50,7 @@ It is recommended to handle errors before passing the promise to `whatIf` or
 `.butWhatIf`.
 
 **WhatIf can have multiple conditions in a if, if-else fashion:**
-```
+```js
 whatIf(falseStatement)
 .then(thisWillNotExecute)
 .butWhatIf(truthfulStatement)
@@ -58,7 +58,7 @@ whatIf(falseStatement)
 ```
 
 **What if can have a default statement, like an else:**
-```
+```js
 whatIf(falseStatement)
 .then(thisWillNotExecute)
 .butWhatIf(anotherFalseStatement)
@@ -67,14 +67,14 @@ whatIf(falseStatement)
 ```
 
 **Can use `.and` instead of `.then`**
-```
+```js
 whatIf(userIsAdmin)
 .then(displayAdminMenu)
 .and(displayAdminReport);
 ```
 
 **Can catch errors that happen inside `.then` and .`.and` statements:**
-```
+```js
 whatIf(theUserHasLoggedIn)
 .then(tryToRedirectThemToTheirDashboard)
 .catch(tryToHandleTheRedirectionError);
@@ -82,7 +82,7 @@ whatIf(theUserHasLoggedIn)
 
 **But will treat errors thrown inside `whatIf` and `.butWhatIf` statements as
 falsy values:**
-```
+```js
 whatIf(thisThrowsAnError)
 .then(thisWillNotExecute)
 .catch(thisWillNotExecuteEither)
