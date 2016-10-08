@@ -1,25 +1,89 @@
 'use strict';
 
-module.exports = class WhatIfPromise extends Promise {
-  otherwise(failure) {
-    return this.then(null, failure);
+module.exports = class WhatIfPromise {
+  constructor(statement) {
+    this.isResolved = false;
+
+    this._prepareStatement(statement);
   }
 
-  butWhatIf(whatIfCondition) {
-    return WhatIfPromise.whatIf(whatIfCondition);
+  then(action) {
+    this.isPristinePromise.then((isPristine) => {
+      if (isPristine && !this.isResolved) {
+        this.promise = this.promise.then(action);
+      }
+    });
+
+    return this;
   }
 
-  static whatIf(whatIfCondition) {
-    if (typeof whatIfCondition === 'function') {
-      return new WhatIfPromise((resolve, reject) => {
-        const result = whatIfCondition();
+  and(action) {
+    return this.then(action);
+  }
 
-        result ? resolve(result) : reject(result);
-      });
+  catch(action) {
+    this.isPristinePromise.then(() => {
+      this.promise = this.promise.catch(action);
+    });
+
+    return this;
+  }
+
+  butWhatIf(statement) {
+    this.isPristinePromise = this.isPristinePromise.then((isPristine) => {
+      if (isPristine) {
+        this.isResolved = true;
+        return isPristine;
+      } else {
+        return this._prepareStatement(statement);
+      }
+    });
+
+    return this;
+  }
+
+  otherwise(action) {
+    this.isPristinePromise.then((isPristine) => {
+      if (!isPristine) action();
+    });
+
+    return this;
+  }
+
+  toPromise() {
+    return this.promise;
+  }
+
+  _prepareStatement(statement) {
+    this.promise = this._reduceToPromisedValue(statement);
+
+    this._checkIfError();
+
+    return this._createIsPristinePromise();
+  }
+
+  _createIsPristinePromise() {
+    return this.isPristinePromise = this.promise.then((value) => !!value);
+  }
+
+  _checkIfError() {
+    this.promise = this.promise.catch(() => false);
+  }
+
+  _reduceToPromisedValue(statement) {
+    if (typeof statement === 'function') {
+      return this._reduceFunctionToPromisedValue(statement);
     } else {
-      return whatIfCondition ?
-      WhatIfPromise.resolve(whatIfCondition) :
-      WhatIfPromise.reject(whatIfCondition);
+      return Promise.resolve(statement);
     }
+  }
+
+  _reduceFunctionToPromisedValue(action) {
+    return new Promise((resolve, reject) => {
+      let result = action();
+      result = this._reduceToPromisedValue(result);
+
+      resolve(result);
+    });
   }
 }

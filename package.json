@@ -1,8 +1,8 @@
 {
   "name": "whatif",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "description": "A promise based programming pattern",
-  "main": "dist/whatif.js",
+  "main": "src/whatif.js",
   "scripts": {
     "test": "jasmine"
   },
@@ -13,6 +13,7 @@
   "keywords": [
     "whatif",
     "programming",
+    "conditional statement",
     "patterns",
     "promises"
   ],
