@@ -22,7 +22,7 @@ whatIf(theUserLogins)
 
 **You can pass logical operators:**
 ```
-whatif(theThemeColor === 'red')
+whatIf(theThemeColor === 'red')
 .then(displayTheRedDashboard)
 .butWhatIf(theThemeColor === 'blue')
 .then(displayTheBlueDashboard)

@@ -7,7 +7,7 @@ describe('WhatIf', () => {
   let whatIfSpy;
 
   beforeEach(() => {
-    const wrapper = { WhatIfPromise: WhatIfPromise };
+    const wrapper = { WhatIfPromise };
 
     whatIfSpy = spyOn(wrapper, 'WhatIfPromise').and.callThrough();
   });
